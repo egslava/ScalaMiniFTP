@@ -1,4 +1,4 @@
-package org.egslava.state
+package org.egslava.ftp.state
 import org.egslava.ftp.ControlConnection
 
 abstract class FtpState (owner: ControlConnection) {

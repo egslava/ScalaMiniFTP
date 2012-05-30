@@ -1,10 +1,14 @@
 #inline comments are forbidden
 #write comments on different lines with config code
 
---- !org.egslava.ftp.Config
+--- !org.egslava.ftp.config.Config
 hostName: localhost
 portNumber: 2121
 debugOutput: true
 
 #Anonymous users only mode. if true - you can't login under your login.
 anonymousOnly: true 
+users: !org.egslava.ftp.config.User[]
+ - !org.egslava.ftp.config.User
+     login: egslava
+     password: egslava

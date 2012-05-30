@@ -4,6 +4,7 @@ import java.io.File
 import java.net.ServerSocket
 import java.net.InetSocketAddress
 import java.net.Socket
+import org.egslava.ftp.config.Config
 
 object Main {
   

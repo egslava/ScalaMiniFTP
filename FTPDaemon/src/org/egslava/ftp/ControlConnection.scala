@@ -5,8 +5,8 @@ import java.io.OutputStreamWriter
 import java.io.InputStreamReader
 import java.io.BufferedWriter
 import java.io.BufferedReader
-import org.egslava.state.FtpState
-import org.egslava.state.DoLogin
+import org.egslava.ftp.state.FtpState
+import org.egslava.ftp.state.DoLogin
 
 class ControlConnection (_socket: Socket) extends Thread {
     val socket = _socket;

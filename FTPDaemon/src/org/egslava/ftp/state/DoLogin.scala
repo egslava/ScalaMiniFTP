@@ -1,5 +1,5 @@
-package org.egslava.state
-import org.egslava.ftp.Config
+package org.egslava.ftp.state
+import org.egslava.ftp.config.Config
 import org.egslava.ftp.Main
 import org.egslava.ftp.ControlConnection
 
