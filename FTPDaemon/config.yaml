@@ -12,3 +12,15 @@ users: !org.egslava.ftp.config.User[]
  - !org.egslava.ftp.config.User
      login: egslava
      password: egslava
+
+#================= to do ========================
+#access:
+#anonymous only / authenticated only / both
+#anonymous can upload / anonymous can create directories
+
+#performance
+#Max iddle time
+#Max clients for one IP
+#Max clients
+#local max rate (kb/s)
+#anonymous max rate

@@ -13,6 +13,7 @@ class ControlConnection (_socket: Socket) extends Thread {
 	val transferSocket: AnyRef = null;
 	
 	var currentState: FtpState = new DoLogin(this);
+	var currentUser: org.egslava.ftp.config.User = null;	// null for anonymous
 	
 	val User = """(?i)USER (\S+)""".r;
 	val Pass = """(?i)PASS (\S+)""".r;
@@ -29,7 +30,7 @@ class ControlConnection (_socket: Socket) extends Thread {
 	            message match{
 	                case User(login) => outStream.write( currentState.user(login) )
 		            case Pass(password) => outStream.write( currentState.pass(password) )
-		            case Noop => outStream.write( currentState.noop() )
+		            case Noop() => outStream.write( currentState.noop() )
 		            case _ =>{
 		                println(message);
 		            }
