@@ -11,6 +11,7 @@ public class Config {
 	public boolean debugOutput = false;
 	public boolean anonymousOnly = false;
 	public User users[] = null;
+	public PortRange portRanges[] = null;
 	
 	static public Config load(String fileName) throws FileNotFoundException{
 		return Yaml.loadType(new File(fileName), Config.class);
