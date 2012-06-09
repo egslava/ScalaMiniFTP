@@ -13,7 +13,6 @@ object Main {
   
 	var clients = Array[Socket]();
 	
-  
 	def main(args: Array[String]): Unit = {
      
 	    try{
@@ -21,12 +20,16 @@ object Main {
 	            println("Configuration file has loaded");
 	            println("\tHost: " + config.hostName);
 	            println("\tPort: " + config.portNumber);
-	            println("\tAnonymous users only mode: " + config.anonymousOnly);  
+	            println("\tAnonymous users only mode: " + config.anonymousOnly);
+	            
+	            println("Port ranges: ");
+	            for(range <- config.portRanges){
+	              println(range.from + "-" + range.to);
+	            }
 	        }
 	    
 	        serverSocket.bind(new InetSocketAddress(config.hostName, config.portNumber));
 		
-		    
 		    while(true){
 		        var incomingSocket = serverSocket.accept();
 		        
@@ -43,4 +46,5 @@ object Main {
 			};
 		};
     };
+
 };

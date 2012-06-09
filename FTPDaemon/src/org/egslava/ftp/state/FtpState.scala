@@ -1,11 +1,13 @@
 package org.egslava.ftp.state
-import org.egslava.ftp.ControlConnection
+abstract class FtpState{
+	def processMessage(message: String): String;
+	protected def generalProcessing(message: String): String = message match{
+        case "SYST" => "215 " + System.getProperty("os.name")+" Type: I\r\n";
+        case "FEAT" => "211-Features:\r\n211 End\r\n"; 
+        case _ => null;
+	}
+}
 
-abstract class FtpState (owner: ControlConnection) {
-	def user(login: String): String;
-	def pass(password: String): String;	
-	def noop(): String;
-	
 	/*	ABOR — Прервать передачу файла
 		CDUP — Сменить директорию на вышестоящую.
 		CWD — Сменить директорию.
@@ -31,4 +33,4 @@ abstract class FtpState (owner: ControlConnection) {
 		TYPE — Установить тип передачи файла(Бинарный, текстовый)
 		USER — Имя пользователя для входа на сервер
 		*/
-}
+//}

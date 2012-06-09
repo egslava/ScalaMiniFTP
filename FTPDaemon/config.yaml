@@ -5,6 +5,14 @@
 hostName: localhost
 portNumber: 2121
 debugOutput: true
+anonHome: /home/egslava/ftp
+portRanges: !org.egslava.ftp.config.PortRange[]
+ - !org.egslava.ftp.config.PortRange
+     from: 1025
+     to:   1225
+ - !org.egslava.ftp.config.PortRange
+     from: 2048
+     to  : 3098
 
 #Anonymous users only mode. if true - you can't login under your login.
 anonymousOnly: true 
@@ -12,6 +20,7 @@ users: !org.egslava.ftp.config.User[]
  - !org.egslava.ftp.config.User
      login: egslava
      password: egslava
+     home: /home/egslava/ftp/
 
 #================= to do ========================
 #access:
