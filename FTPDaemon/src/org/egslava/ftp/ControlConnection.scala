@@ -29,6 +29,7 @@ class ControlConnection (_socket: Socket) extends Thread {
 	val Site = """SITE (\S+)""".r;
 	val Retr = """(?i)RETR (\S+)""".r;
 	val Cdup = """(?i)CDUP""".r;
+	var Stor = """(?i)STOR (\S+)""".r;
 	
 	override def run: Unit = {
 	    val outStream = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));

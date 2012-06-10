@@ -8,6 +8,8 @@ import java.net.BindException
 import java.net.SocketTimeoutException
 import java.io.File
 import org.egslava.ftp.FileSystemNavigator
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 class WaitForCommandsState(owner: ControlConnection) extends FtpState{
   
@@ -41,7 +43,7 @@ drwxr-xr-x 	40	ftp	ftp	4096	May	23	11:00	pub"""
 			case _ =>;
 	    }
 	    message match{
-			case owner.Nlst() => return nlst() + "\r\n";
+			case owner.Nlst() => return nlst();
 			case owner.TypeCMD(mode) => return "200 Switching to Binary mode.\r\n";
 			case owner.Pwd() => return currentDir.pwd();
 			case owner.Site("HELP") => "450 Not realized yet\r\n";//return "200-\r\n200\r\n";
@@ -49,11 +51,12 @@ drwxr-xr-x 	40	ftp	ftp	4096	May	23	11:00	pub"""
 	    }
 	    message match{
 	        case owner.Cdup() => return currentDir.cdup();
+	        case owner.Stor(fileName) => return stor(fileName);
 	        case _ =>;
 	    }
 		message match{
 			case owner.Cwd(path) => return currentDir.cwd(path);
-			case owner.Retr(filePath) => return transferFile(filePath);
+			case owner.Retr(filePath) => return retr(filePath);
 			case owner.Empty() => return ""
 			case unrecognizedCommand => return "500 Unrecognized command " + unrecognizedCommand + "\r\n";
 		}
@@ -87,6 +90,7 @@ drwxr-xr-x 	40	ftp	ftp	4096	May	23	11:00	pub"""
 	
 	def list(): String = {
 	    //Realize list, test passive mode
+	    //TODO: hide hidden files
 	    if(dataSocket == null)
 	    	return "425 Use PORT or PASV first.";
 	    
@@ -99,8 +103,58 @@ drwxr-xr-x 	40	ftp	ftp	4096	May	23	11:00	pub"""
 	
 	def nlst(): String = {
 	    if(dataSocket == null)
-	    	return "425 Use PORT or PASV first.";
+	    	return "425 Use PORT or PASV first.\r\n";
 	    return "";
+	}
+	
+	def retr(fileName: String): String = {
+	    val Success = "(150 .*\r\n)".r;
+	    
+	    if(dataSocket == null)
+	        return "425 Use PORT or PASV first.\r\n";
+
+	    currentDir.retr(fileName) match{
+	        case Success(result) => {
+	            owner.socket.getOutputStream().write(result.getBytes());
+	            
+	            val file = new File(currentDir.homePath + currentDir.makeFullPath(fileName));
+	            val fileStream = new FileInputStream(file);
+	            
+	            val fileBuffer = new Array[Byte]( file.length().toInt);
+	            fileStream.read(fileBuffer);
+	            dataSocket.getOutputStream().write(fileBuffer);
+	            resetDataConnection();
+	            return "226 Transfer complete.\r\n";
+	            //fileStream.
+	        };
+	        case badResult => {
+	        	println("Bad result");
+	            return badResult;
+	        }
+	    }
+	    
+	    ""
+	}
+	
+	def stor(fileName: String): String = {
+	    val path = currentDir.homePath + currentDir.makeFullPath(fileName);
+	    val file = new File(path);
+	    
+	    if(!file.createNewFile())
+	        return "532 Can not open file\r\n";//TODO: return error code
+	    
+	    owner.socket.getOutputStream().write("125 Using existing data connection.\r\n".getBytes());
+	    
+	    val fileStream = new FileOutputStream(file);
+	    
+	    val fileBuffer = new Array[Byte](1024 * 1024 * 4);	//4mb
+	    while(! dataSocket.isClosed() ){
+	        var readBytes = dataSocket.getInputStream().read(fileBuffer);
+	        fileStream.write(fileBuffer, 0, readBytes);
+	    }
+	    
+	    resetDataConnection();
+	    return "226 FILE: " + fileName + " transferred\r\n";
 	}
 	
 	protected def bindInRanges(): ServerSocket = {
@@ -142,13 +196,19 @@ drwxr-xr-x 	40	ftp	ftp	4096	May	23	11:00	pub"""
 	}
 	
 	def resetDataConnection():Unit = {
-	  if(dataSocket != null)
-	    dataSocket.close();
+	  if(dataSocket != null){
+	    if (dataSocket.isConnected())
+	        dataSocket.close();   
+	  }
+	    
 	  dataSocket = null;
 	}
 	
 	def transferFile(filePath: String): String = {
 	    //TODO: realize
+	    
+	    //1. Check data transfer connection
+	    //2. 
 	    "Unrealized \r\n"
 	}
 	/*
