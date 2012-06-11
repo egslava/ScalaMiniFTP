@@ -1,6 +1,8 @@
 package org.egslava.ftp
 import java.io.File
 import java.net.Socket
+import java.util.Date
+import java.util.Calendar
 
 class FileSystemNavigator (owner: ControlConnection) {
     var currentDirectory: String = """/""";
@@ -96,7 +98,31 @@ class FileSystemNavigator (owner: ControlConnection) {
 	    case null => return Main.config.anonHome;
 	    case _ => return owner.currentUser.home;
 	};
-	        
+	
+	protected def getFileDescription(file: File): String = {
+	    val isDir:String = file.isDirectory()match{
+	        case true => "d"; 
+	        case false => "-";
+	        };
+	    val size = file.length();
+        val date = new Date(file.lastModified());
+        var calendar: Calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        //calendar.f
+	    /*
+	     * String strdate = null;
+
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+			
+			if (calendardate != null) {
+			strdate = sdf.format(calendardate.getTime());
+			}*/
+        if(date.getYear() == new Date().getYear()){
+            //val dateString = date.get            
+        }
+        
+	    ""
+	}
     protected val UpPath = """(.*\/)[^\/]+\/""".r;
     protected def getUpDirectory(dir: String):String = dir match{
         case UpPath(path) => path;
