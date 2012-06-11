@@ -10,6 +10,7 @@ import java.io.File
 import org.egslava.ftp.FileSystemNavigator
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.net.SocketException
 
 class WaitForCommandsState(owner: ControlConnection) extends FtpState{
   
@@ -144,15 +145,41 @@ drwxr-xr-x 	40	ftp	ftp	4096	May	23	11:00	pub"""
 	        return "532 Can not open file\r\n";//TODO: return error code
 	    
 	    owner.socket.getOutputStream().write("125 Using existing data connection.\r\n".getBytes());
+	    owner.socket.getOutputStream().flush();
+	    //dataSocket.shutdownOutput();
 	    
-	    val fileStream = new FileOutputStream(file);
-	    
+	    val fileStream = new FileOutputStream(file);	    
 	    val fileBuffer = new Array[Byte](1024 * 1024 * 4);	//4mb
-	    while(! dataSocket.isClosed() ){
-	        var readBytes = dataSocket.getInputStream().read(fileBuffer);
-	        fileStream.write(fileBuffer, 0, readBytes);
+	    
+	    var isClosed = false;
+	    try{
+	        while( !isClosed){
+	        	        
+		        var available = dataSocket.getInputStream().available();
+		        var readBytes = dataSocket.getInputStream().read(fileBuffer);
+		        var EOS: Int = 0; 
+		        if(readBytes <= 0)
+		        	EOS = dataSocket.getInputStream().read();
+		        if(readBytes > 0 ){
+			        fileStream.write(fileBuffer, 0, readBytes);
+			        fileStream.flush();
+		        }else{
+		            if(EOS == -1)
+		                isClosed = true;
+		            else
+		                fileStream.write(EOS);
+		            Thread.sleep(1);
+		        }
+		        
+	        }
+	    }catch{
+	        case sockExcp: SocketException => {
+	            dataSocket.close();
+	            println("SOck error");
+	        };
 	    }
 	    
+	    fileStream.close();
 	    resetDataConnection();
 	    return "226 FILE: " + fileName + " transferred\r\n";
 	}
